@@ -1,4 +1,4 @@
-﻿@model Louda_MVC_Test_1.Models.GPS
+﻿
 
 @{
     ViewBag.Title = "Home Page";
@@ -7,7 +7,7 @@
 
 
 <style>
-    #map {
+    #MapDiv {
         height: 400px;
         width: 400px;
     }
@@ -22,82 +22,81 @@
 
 <div class="row">
 
+    <div id="MapDiv"> </div>
+
+
+</div>
+
+@section scripts{
+
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7-FJ4qXh1O_C1XFYIIaun-OfKoCIy5qg"></script>
     <script type="text/javascript">
 
-        <script type="text/javascript">
-
-
-
-
-
-            $.ajax({
-                url: '/home/GetMapMarker',
+        $.ajax({
+            url: '/home/GetMapMarker',
             type: 'GET',
-                success: function (data) {
-                    //create a blank array
-                    var markers = [];
-
-            //loop the list of addresses returned from Ajax request
-                    $.each(data, function (index, item) {
-                        //create a blank array of address
-                        var marker = {};
-
-            //fill data
-            marker["title"] = Name;
-            marker["lat"] = item.latitude;
-            marker["lng"] = item.longitude;
-
-            //push the current marker details in markers array
-            markers.push(marker);
-        })
-
-        //call Map function with all markers passed as list of arrays
-        initializeMap(markers);
-
-}
-});
+            success: function (data) {
 
 
-       function initializeMap(markers) {
-                //you can check your marker data in console
-                console.log(markers);
-            //Create Google map options
-                var GoogleMapOptions = {
-                center: new google.maps.LatLng(markers[0].lat, markers[0].lng),
-            zoom: 6,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
+                var markers = [];
 
 
-        //create a variable of InfoWindow type to show data on clicking map icon
-        var infoWindow = new google.maps.InfoWindow();
-        var map = new google.maps.Map(document.getElementById("MapDiv"), GoogleMapOptions);
+                $.each(data, function (index, item) {
 
 
-        //loop through each marker data
-                for (i = 0; i < markers.length; i++) {
-                    var data = markers[i]
-            //set lat long of current marker
-            var myLatlng = new google.maps.LatLng(data.lat, data.lng);
+                    var marker = {};
 
-                    var marker = new google.maps.Marker({
-                position: myLatlng,
-            map: map,
-            title: data.title
+
+                    marker["title"] = item.Name;
+                    marker["lat"] = item.latitude;
+                    marker["lng"] = item.longitude;
+
+                    markers.push(marker);
+                })
+
+                initializeMap(markers);
+
+            }
         });
 
-                    (function (marker, data) {
-                // add a on marker click event
-                google.maps.event.addListener(marker, "click", function (e) {
-                    //show description
-                    infoWindow.setContent(data.Name);
-                    infoWindow.open(map, marker);
+
+        function initializeMap(markers) {
+
+            console.log(markers);
+
+            var GoogleMapOptions = {
+                center: new google.maps.LatLng(markers[0].lat, markers[0].lng),
+                zoom: 6,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+
+
+
+            var infoWindow = new google.maps.InfoWindow();
+            var map = new google.maps.Map(document.getElementById("MapDiv"), GoogleMapOptions);
+
+
+            for (i = 0; i < markers.length; i++) {
+                var data = markers[i]
+
+                var myLatlng = new google.maps.LatLng(data.lat, data.lng);
+
+                var marker = new google.maps.Marker({
+                    position: myLatlng,
+                    map: map,
+                    title: data.title
                 });
-        })(marker, data);
-}
-}
+
+                (function (marker, data) {
+
+                    google.maps.event.addListener(marker, "click", function (e) {
+
+                        infoWindow.setContent(data.title);
+                        infoWindow.open(map, marker);
+                    });
+                })(marker, data);
+            }
+        }
 
     </script>
-
-</div>
+}
